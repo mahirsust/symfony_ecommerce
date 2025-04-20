@@ -1,25 +1,10 @@
-
-###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
+/node_modules/
+/public/build/
 /public/bundles/
 /var/
 /vendor/
-###< symfony/framework-bundle ###
-
-###> phpunit/phpunit ###
-/phpunit.xml
+.env
+.env.local
+.env.*.local
 .phpunit.result.cache
-###< phpunit/phpunit ###
-
-###> symfony/phpunit-bridge ###
-.phpunit.result.cache
-/phpunit.xml
-###< symfony/phpunit-bridge ###
-
-###> symfony/asset-mapper ###
-/public/assets/
-/assets/vendor/
-###< symfony/asset-mapper ###
+/docker-compose.override.yml
