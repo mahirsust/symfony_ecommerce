@@ -1,9 +1,5 @@
-.env
-.env.local
-.env.dev.local
-.env.test.local
-.env.test
-.env.dev
+*.env
+*.env.local
 .phpunit.result.cache
 /docker-compose.override.yml
 /var/
