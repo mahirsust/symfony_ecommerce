@@ -1,7 +1,9 @@
+# Ignore all .env files
 .env
 .env.dev
 .env.test
 *.env.local
+*.env.*.local
 .phpunit.result.cache
 /docker-compose.override.yml
 /var/
