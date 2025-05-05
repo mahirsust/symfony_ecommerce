@@ -1,16 +1,17 @@
-/node_modules/
-/public/build/
-/public/bundles/
-/var/
-/vendor/
 .env
-.env.*
+.env.local
+.env.dev.local
+.env.test.local
+.env.test
+.env.dev
 .phpunit.result.cache
 /docker-compose.override.yml
-
+/var/
+/vendor/
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
+/public/bundles/
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###

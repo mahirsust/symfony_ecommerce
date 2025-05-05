@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_category_index') }}">Categories</a></li>
+            {% if category.parent %}
+                <li class="breadcrumb-item"><a href="{{ path('app_category_show', {'slug': category.parent.slug}) }}">{{ category.parent.name }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="mb-4">
+        <h1>{{ category.name }}</h1>
+        {% if category.description %}
+            <p class="lead">{{ category.description }}</p>
+        {% endif %}
+    </div>
+    
+    {% if subcategories|length > 0 %}
+        <div class="mb-5">
+            <h2 class="mb-3">Subcategories</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for subcategory in subcategories %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title">{{ subcategory.name }}</h3>
+                                {% if subcategory.description %}
+                                    <p class="card-text">{{ subcategory.description|length > 150 ? subcategory.description|slice(0, 150) ~ '...' : subcategory.description }}</p>
+                                {% endif %}
+                                <a href="{{ path('app_product_by_category', {'slug': subcategory.slug}) }}" class="btn btn-primary">Browse Products</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <h2 class="mb-3">Products in {{ category.name }}</h2>
+        <a href="{{ path('app_product_by_category', {'slug': category.slug}) }}" class="btn btn-primary">View All Products</a>
+    </div>
+</div>
+{% endblock %}

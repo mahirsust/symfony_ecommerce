@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}All Products{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>All Products</h1>
+        
+        <form action="{{ path('app_product_search') }}" method="get" class="d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Search products..." value="{{ app.request.query.get('q') }}">
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+        </form>
+    </div>
+    
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    
+    {% if pagination.items|length > 0 %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+            {% for product in pagination %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {% if product.productImages|length > 0 %}
+                            <img src="{{ asset('uploads/products/' ~ product.productImages[0].filename) }}" 
+                                 class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No Image">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-truncate">{{ product.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if product.hasDiscount %}
+                                        <span class="text-decoration-line-through text-muted">${{ product.price }}</span>
+                                        <span class="text-danger ms-2">${{ product.discountPrice }}</span>
+                                    {% else %}
+                                        <span>${{ product.price }}</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{{ path('app_product_show', {'slug': product.slug}) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <small class="text-muted">Category: <a href="{{ path('app_product_by_category', {'slug': product.category.slug}) }}">{{ product.category.name }}</a></small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="navigation d-flex justify-content-center mt-4">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            No products found.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

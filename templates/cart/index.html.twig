@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1 class="mb-4">Shopping Cart</h1>
+    
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+    
+    {% if items|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if item.product.productImages|length > 0 %}
+                                        <img src="{{ asset('uploads/products/' ~ item.product.productImages[0].filename) }}" 
+                                             alt="{{ item.product.name }}" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                    {% endif %}
+                                    <div>
+                                        <h5 class="mb-0">{{ item.product.name }}</h5>
+                                        <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${{ item.product.actualPrice }}</td>
+                            <td>
+                                <form action="{{ path('app_cart_update', {'id': item.product.id}) }}" method="post" class="d-flex align-items-center">
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" 
+                                           class="form-control form-control-sm" style="width: 70px;">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary ms-2">Update</button>
+                                </form>
+                            </td>
+                            <td>${{ item.total }}</td>
+                            <td>
+                                <form action="{{ path('app_cart_remove', {'id': item.product.id}) }}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                        <td><strong>${{ total }}</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ path('app_product_index') }}" class="btn btn-outline-secondary">Continue Shopping</a>
+            <div>
+                <form action="{{ path('app_cart_clear') }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger me-2">Clear Cart</button>
+                </form>
+                {% if app.user %}
+                    <a href="{{ path('app_order_checkout') }}" class="btn btn-primary">Proceed to Checkout</a>
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="btn btn-primary">Login to Checkout</a>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Add some products to your cart and they will appear here.</p>
+            <a href="{{ path('app_product_index') }}" class="btn btn-primary mt-3">Browse Products</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

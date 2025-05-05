@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_admin_dashboard') }}" class="list-group-item list-group-item-action {{ active_menu is defined and active_menu == 'dashboard' ? 'active' : '' }}">Dashboard</a>
+                    <a href="{{ path('app_admin_product_index') }}" class="list-group-item list-group-item-action {{ active_menu is defined and active_menu == 'products' ? 'active' : '' }}">Products</a>
+                    <a href="{{ path('app_admin_category_index') }}" class="list-group-item list-group-item-action {{ active_menu is defined and active_menu == 'categories' ? 'active' : '' }}">Categories</a>
+                    <a href="{{ path('app_admin_order_index') }}" class="list-group-item list-group-item-action {{ active_menu is defined and active_menu == 'orders' ? 'active' : '' }}">Orders</a>
+                    <a href="{{ path('app_admin_product_reviews') }}" class="list-group-item list-group-item-action {{ active_menu is defined and active_menu == 'reviews' ? 'active' : '' }}">Reviews</a>
+                    <a href="{{ path('app_home') }}" class="list-group-item list-group-item-action">Back to Site</a>
+                </div>
+            </div>
+
+            {% block sidebar %}{% endblock %}
+        </div>
+
+        <div class="col-md-9">
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

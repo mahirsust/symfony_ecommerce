@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_admin_dashboard') }}" class="list-group-item list-group-item-action active">Dashboard</a>
+                    <a href="{{ path('app_admin_product_index') }}" class="list-group-item list-group-item-action">Products</a>
+                    <a href="{{ path('app_admin_category_index') }}" class="list-group-item list-group-item-action">Categories</a>
+                    <a href="{{ path('app_admin_order_index') }}" class="list-group-item list-group-item-action">Orders</a>
+                    <a href="{{ path('app_home') }}" class="list-group-item list-group-item-action">Back to Site</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <h1 class="mb-4">Admin Dashboard</h1>
+            
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Products</h5>
+                            <p class="card-text display-4">{{ totalProducts }}</p>
+                            <a href="{{ path('app_admin_product_index') }}" class="btn btn-primary">Manage Products</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Orders</h5>
+                            <p class="card-text display-4">{{ totalOrders }}</p>
+                            <a href="{{ path('app_admin_order_index') }}" class="btn btn-primary">Manage Orders</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Users</h5>
+                            <p class="card-text display-4">{{ totalUsers }}</p>
+                            <a href="#" class="btn btn-primary">Manage Users</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Recent Orders</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recentOrders|length > 0 %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Order #</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Total</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for order in recentOrders %}
+                                                <tr>
+                                                    <td>{{ order.orderNumber }}</td>
+                                                    <td>{{ order.createdAt|date('Y-m-d') }}</td>
+                                                    <td><span class="badge bg-{{ order.status == 'completed' ? 'success' : (order.status == 'pending' ? 'warning' : 'info') }}">{{ order.status|capitalize }}</span></td>
+                                                    <td>${{ order.totalAmount }}</td>
+                                                    <td>
+                                                        <a href="{{ path('app_admin_order_show', {'id': order.id}) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-center">No recent orders.</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ path('app_admin_order_index') }}" class="btn btn-outline-primary btn-sm">View All Orders</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Low Stock Products</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if lowStockProducts|length > 0 %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>SKU</th>
+                                                <th>Stock</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for product in lowStockProducts %}
+                                                <tr>
+                                                    <td>{{ product.name }}</td>
+                                                    <td>{{ product.sku }}</td>
+                                                    <td><span class="badge bg-{{ product.stock == 0 ? 'danger' : 'warning' }}">{{ product.stock }}</span></td>
+                                                    <td>
+                                                        <a href="{{ path('app_admin_product_edit', {'id': product.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-center">No low stock products.</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ path('app_admin_product_index') }}" class="btn btn-outline-primary btn-sm">View All Products</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends 'admin\_layout.html.twig' %}
+
+{% block title %}Admin - Product Reviews{% endblock %}
+
+{% set active_menu = 'reviews' %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Product Reviews</h1>
+    <div class="btn-group" role="group">
+        <a href="{{ path('app_admin_product_reviews') }}" class="btn btn-outline-secondary {{ status is null ? 'active' : '' }}">All</a>
+        <a href="{{ path('app_admin_product_reviews', {'status': 'pending'}) }}" class="btn btn-outline-warning {{ status == 'pending' ? 'active' : '' }}">Pending</a>
+        <a href="{{ path('app_admin_product_reviews', {'status': 'approved'}) }}" class="btn btn-outline-success {{ status == 'approved' ? 'active' : '' }}">Approved</a>
+    </div>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">
+        {{ message }}
+    </div>
+{% endfor %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>User</th>
+                        <th>Rating</th>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in pagination %}
+                        <tr>
+                            <td>{{ review.id }}</td>
+                            <td>
+                                <a href="{{ path('app_admin_product_show', {'id': review.product.id}) }}">{{ review.product.name }}</a>
+                            </td>
+                            <td>{{ review.user.email }}</td>
+                            <td>
+                                <div class="text-warning">
+                                    {% for i in 1..5 %}
+                                        <i class="bi bi-star{% if i <= review.rating %}-fill{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>{{ review.title }}</td>
+                            <td>{{ review.createdAt|date('Y-m-d H:i') }}</td>
+                            <td>
+                                <span class="badge bg-{{ review.isApproved ? 'success' : 'warning' }}">
+                                    {{ review.isApproved ? 'Approved' : 'Pending' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('app_admin_product_review_show', {'id': review.id}) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if not review.isApproved %}
+                                        <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ review.id }}">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ review.id }}">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ review.id }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if not review.isApproved %}
+                                    <!-- Approve Modal -->
+                                    <div class="modal fade" id="approveModal{{ review.id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ review.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="approveModalLabel{{ review.id }}">Confirm Approval</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to approve this review?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="{{ path('app_admin_product_review_approve', {'id': review.id}) }}" method="post">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ review.id) }}">
+                                                        <button type="submit" class="btn btn-success">Approve</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Reject Modal -->
+                                    <div class="modal fade" id="rejectModal{{ review.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ review.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="rejectModalLabel{{ review.id }}">Confirm Rejection</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to reject and delete this review?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="{{ path('app_admin_product_review_reject', {'id': review.id}) }}" method="post">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ review.id) }}">
+                                                        <button type="submit" class="btn btn-danger">Reject</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal{{ review.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ review.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel{{ review.id }}">Confirm Delete</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete this review?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="{{ path('app_product_review_delete', {'id': review.id}) }}" method="post">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ review.id) }}">
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="navigation d-flex justify-content-center mt-4">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filter Reviews</h5>
+    </div>
+    <div class="card-body">
+        <form action="{{ path('app_admin_product_reviews') }}" method="get">
+            <div class="mb-3">
+                <label for="product" class="form-label">Product</label>
+                <input type="text" name="product" id="product" class="form-control" placeholder="Search by product name">
+            </div>
+            
+            <div class="mb-3">
+                <label for="user" class="form-label">User</label>
+                <input type="text" name="user" id="user" class="form-control" placeholder="Search by user email">
+            </div>
+            
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <select name="rating" id="rating" class="form-select">
+                    <option value="">All Ratings</option>
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
+                </select>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

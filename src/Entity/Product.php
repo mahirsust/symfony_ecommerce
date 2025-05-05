@@ -55,10 +55,14 @@ class Product
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: OrderItem::class)]
     private Collection $orderItems;
 
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductReview::class, orphanRemoval: true)]
+    private Collection $productReviews;
+
     public function __construct()
     {
         $this->productImages = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
+        $this->productReviews = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -247,5 +251,35 @@ class Product
     public function hasDiscount(): bool
     {
         return $this->discountPrice !== null;
+    }
+
+    /**
+     * @return Collection<int, ProductReview>
+     */
+    public function getProductReviews(): Collection
+    {
+        return $this->productReviews;
+    }
+
+    public function addProductReview(ProductReview $productReview): static
+    {
+        if (!$this->productReviews->contains($productReview)) {
+            $this->productReviews->add($productReview);
+            $productReview->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductReview(ProductReview $productReview): static
+    {
+        if ($this->productReviews->removeElement($productReview)) {
+            // set the owning side to null (unless already changed)
+            if ($productReview->getProduct() === $this) {
+                $productReview->setProduct(null);
+            }
+        }
+
+        return $this;
     }
 }

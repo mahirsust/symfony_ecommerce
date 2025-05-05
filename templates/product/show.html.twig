@@ -1,0 +1,352 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_product_index') }}">Products</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_product_by_category', {'slug': product.category.slug}) }}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-6">
+            {% if product.productImages|length > 0 %}
+                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in product.productImages %}
+                            <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+                                <img src="{{ asset('uploads/products/' ~ image.filename) }}" class="d-block w-100 rounded" alt="{{ product.name }}" style="height: 400px; object-fit: contain;">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if product.productImages|length > 1 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    {% endif %}
+                </div>
+
+                {% if product.productImages|length > 1 %}
+                    <div class="row mt-3">
+                        {% for image in product.productImages %}
+                            <div class="col-3">
+                                <img src="{{ asset('uploads/products/' ~ image.filename) }}" class="img-thumbnail" alt="{{ product.name }}" data-bs-target="#productCarousel" data-bs-slide-to="{{ loop.index0 }}" style="cursor: pointer; height: 80px; object-fit: cover;">
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <img src="https://via.placeholder.com/600x400?text=No+Image" class="img-fluid rounded" alt="No Image">
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ product.name }}</h1>
+
+            <div class="mb-3">
+                <span class="badge bg-secondary">{{ product.category.name }}</span>
+                <span class="badge bg-info">SKU: {{ product.sku }}</span>
+                {% if product.stock > 0 %}
+                    <span class="badge bg-success">In Stock ({{ product.stock }})</span>
+                {% else %}
+                    <span class="badge bg-danger">Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                {% if product.hasDiscount %}
+                    <h3>
+                        <span class="text-decoration-line-through text-muted">${{ product.price }}</span>
+                        <span class="text-danger ms-2">${{ product.discountPrice }}</span>
+                        <small class="text-success">
+                            {% set discount = (product.price - product.discountPrice) / product.price * 100 %}
+                            {{ discount|round }}% OFF
+                        </small>
+                    </h3>
+                {% else %}
+                    <h3>${{ product.price }}</h3>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <h5>Description</h5>
+                <p>{{ product.description|nl2br }}</p>
+            </div>
+
+            {% if product.stock > 0 %}
+                <form action="{{ path('app_cart_add', {'id': product.id}) }}" method="post" class="mb-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <label for="quantity" class="col-form-label">Quantity:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="{{ product.stock }}">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <div class="alert alert-warning">
+                    This product is currently out of stock.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="product-reviews mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Customer Reviews</h3>
+            {% if app.user %}
+                <a href="{{ path('app_product_review_new', {'id': product.id}) }}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Write a Review
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-person"></i> Login to Write a Review
+                </a>
+            {% endif %}
+        </div>
+
+        {% set approvedReviewsCount = 0 %}
+        {% for review in product.productReviews %}
+            {% if review.isApproved %}
+                {% set approvedReviewsCount = approvedReviewsCount + 1 %}
+            {% endif %}
+        {% endfor %}
+
+        {% if approvedReviewsCount > 0 %}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="display-4 text-warning">
+                                {% set totalRating = 0 %}
+                                {% set approvedCount = 0 %}
+                                {% for review in product.productReviews %}
+                                    {% if review.isApproved %}
+                                        {% set totalRating = totalRating + review.rating %}
+                                        {% set approvedCount = approvedCount + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% set averageRating = (totalRating / approvedCount)|round(1) %}
+                                {{ averageRating }}
+                            </h4>
+                            <div class="text-warning mb-2">
+                                {% for i in 1..5 %}
+                                    <i class="bi bi-star{% if i <= averageRating %}-fill{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                            <p class="text-muted">Based on {{ approvedCount }} review{% if approvedCount > 1 %}s{% endif %}</p>
+
+                            <div class="rating-breakdown mt-3">
+                                {% for i in 5..1 %}
+                                    {% set count = 0 %}
+                                    {% for review in product.productReviews %}
+                                        {% if review.isApproved and review.rating == i %}
+                                            {% set count = count + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% set percentage = (count / approvedCount * 100)|round %}
+                                    <div class="d-flex align-items-center mb-1">
+                                        <div class="text-warning me-2">{{ i }} <i class="bi bi-star-fill"></i></div>
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="ms-2 text-muted small">{{ count }}</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="reviews-list">
+                        {% set displayedCount = 0 %}
+                        {% for review in product.productReviews %}
+                            {% if review.isApproved and displayedCount < 5 %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="mb-0">{{ review.title }}</h5>
+                                            <div class="text-warning">
+                                                {% for i in 1..5 %}
+                                                    <i class="bi bi-star{% if i <= review.rating %}-fill{% endif %}"></i>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <p class="card-text">{{ review.comment }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                By {{ review.user.firstName }} {{ review.user.lastName|first }}. on {{ review.createdAt|date('M d, Y') }}
+                                            </small>
+                                            {% if review.order %}
+                                                <span class="badge bg-success">Verified Purchase</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% set displayedCount = displayedCount + 1 %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if approvedCount > 5 %}
+                            <div class="text-center mt-3">
+                                <button class="btn btn-outline-secondary" id="loadMoreReviews">
+                                    Load More Reviews
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <p>There are no reviews yet for this product.</p>
+                <p>Be the first to share your thoughts!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if relatedProducts|length > 0 %}
+        <div class="related-products mt-5">
+            <h3 class="mb-4">Related Products</h3>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                {% for relatedProduct in relatedProducts %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            {% if relatedProduct.productImages|length > 0 %}
+                                <img src="{{ asset('uploads/products/' ~ relatedProduct.productImages[0].filename) }}"
+                                     class="card-img-top" alt="{{ relatedProduct.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No Image">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ relatedProduct.name }}</h5>
+                                <p class="card-text text-truncate">{{ relatedProduct.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if relatedProduct.hasDiscount %}
+                                            <span class="text-decoration-line-through text-muted">${{ relatedProduct.price }}</span>
+                                            <span class="text-danger ms-2">${{ relatedProduct.discountPrice }}</span>
+                                        {% else %}
+                                            <span>${{ relatedProduct.price }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{{ path('app_product_show', {'slug': relatedProduct.slug}) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadMoreButton = document.getElementById('loadMoreReviews');
+        if (loadMoreButton) {
+            loadMoreButton.addEventListener('click', function() {
+                // Get all reviews
+                const allReviews = [
+                    {% set comma = false %}
+                    {% for review in product.productReviews %}
+                        {% if review.isApproved %}
+                            {% if comma %},{% endif %}
+                            {
+                                id: {{ review.id }},
+                                title: {{ review.title|json_encode|raw }},
+                                comment: {{ review.comment|json_encode|raw }},
+                                rating: {{ review.rating }},
+                                createdAt: {{ review.createdAt|date('c')|json_encode|raw }},
+                                user: {
+                                    firstName: {{ review.user.firstName|json_encode|raw }},
+                                    lastName: {{ review.user.lastName|json_encode|raw }}
+                                },
+                                order: {{ review.order ? 'true' : 'false' }}
+                            }
+                            {% set comma = true %}
+                        {% endif %}
+                    {% endfor %}
+                ];
+                const reviewsList = document.querySelector('.reviews-list');
+                const displayedReviews = document.querySelectorAll('.reviews-list .card').length;
+
+                // Display 5 more reviews
+                const nextReviews = allReviews.slice(displayedReviews, displayedReviews + 5);
+
+                if (nextReviews.length > 0) {
+                    nextReviews.forEach(review => {
+                        const reviewCard = document.createElement('div');
+                        reviewCard.className = 'card mb-3';
+
+                        let stars = '';
+                        for (let i = 1; i <= 5; i++) {
+                            stars += `<i class="bi bi-star${i <= review.rating ? '-fill' : ''}"></i>`;
+                        }
+
+                        const verifiedBadge = review.order ? '<span class="badge bg-success">Verified Purchase</span>' : '';
+                        const reviewDate = new Date(review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                        reviewCard.innerHTML = `
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0">${review.title}</h5>
+                                    <div class="text-warning">${stars}</div>
+                                </div>
+                                <p class="card-text">${review.comment}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        By ${review.user.firstName} ${review.user.lastName.charAt(0)}. on ${reviewDate}
+                                    </small>
+                                    ${verifiedBadge}
+                                </div>
+                            </div>
+                        `;
+
+                        // Insert before the "Load More" button container
+                        reviewsList.insertBefore(reviewCard, loadMoreButton.parentElement);
+                    });
+
+                    // Hide the button if all reviews are displayed
+                    if (displayedReviews + nextReviews.length >= allReviews.length) {
+                        loadMoreButton.parentElement.style.display = 'none';
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

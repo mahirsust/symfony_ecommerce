@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Edit Category{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_admin_dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
+                    <a href="{{ path('app_admin_product_index') }}" class="list-group-item list-group-item-action">Products</a>
+                    <a href="{{ path('app_admin_category_index') }}" class="list-group-item list-group-item-action active">Categories</a>
+                    <a href="{{ path('app_admin_order_index') }}" class="list-group-item list-group-item-action">Orders</a>
+                    <a href="{{ path('app_home') }}" class="list-group-item list-group-item-action">Back to Site</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Edit Category</h1>
+                <div>
+                    <a href="{{ path('app_admin_category_index') }}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                    <a href="{{ path('app_admin_category_show', {'id': category.id}) }}" class="btn btn-outline-info">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                        <div class="mb-3">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control' ~ (form.name.vars.valid ? '' : ' is-invalid')}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.parent) }}
+                            {{ form_widget(form.parent, {'attr': {'class': 'form-select' ~ (form.parent.vars.valid ? '' : ' is-invalid')}}) }}
+                            {{ form_errors(form.parent) }}
+                            <small class="form-text text-muted">Select a parent category if this is a subcategory.</small>
+                            
+                            {% if category.children|length > 0 %}
+                                <div class="alert alert-warning mt-2">
+                                    <i class="bi bi-exclamation-triangle"></i> This category has {{ category.children|length }} subcategories. Changing its parent may affect the category hierarchy.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.description) }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.valid ? '' : ' is-invalid'), 'rows': '5'}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ path('app_admin_category_index') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Category</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

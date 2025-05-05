@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome to Symfony E-Commerce{% endblock %}
+
+{% block body %}
+<section class="hero bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4 fw-bold">Welcome to Symfony E-Commerce</h1>
+                <p class="lead">Your one-stop shop for all your needs. Browse our wide selection of products at competitive prices.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="{{ path('app_product_index') }}" class="btn btn-primary btn-lg px-4 me-md-2">Shop Now</a>
+                    <a href="{{ path('app_category_index') }}" class="btn btn-outline-secondary btn-lg px-4">Browse Categories</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <img src="https://via.placeholder.com/600x400?text=Symfony+E-Commerce" alt="Symfony E-Commerce" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured-products py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Featured Products</h2>
+        
+        {% if featuredProducts|length > 0 %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                {% for product in featuredProducts %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            {% if product.productImages|length > 0 %}
+                                <img src="{{ asset('uploads/products/' ~ product.productImages[0].filename) }}" 
+                                     class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No Image">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text text-truncate">{{ product.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if product.hasDiscount %}
+                                            <span class="text-decoration-line-through text-muted">${{ product.price }}</span>
+                                            <span class="text-danger ms-2">${{ product.discountPrice }}</span>
+                                        {% else %}
+                                            <span>${{ product.price }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{{ path('app_product_show', {'slug': product.slug}) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                No featured products available at the moment.
+            </div>
+        {% endif %}
+        
+        <div class="text-center mt-4">
+            <a href="{{ path('app_product_index') }}" class="btn btn-primary">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<section class="categories py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Shop by Category</h2>
+        
+        {% if mainCategories|length > 0 %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for category in mainCategories %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">{{ category.name }}</h3>
+                                {% if category.description %}
+                                    <p class="card-text">{{ category.description|length > 100 ? category.description|slice(0, 100) ~ '...' : category.description }}</p>
+                                {% endif %}
+                                <a href="{{ path('app_product_by_category', {'slug': category.slug}) }}" class="btn btn-outline-primary">Browse {{ category.name }}</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                No categories available at the moment.
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="features py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="p-3">
+                    <i class="bi bi-truck fs-1 text-primary"></i>
+                    <h3 class="mt-3">Fast Shipping</h3>
+                    <p>Get your products delivered quickly and efficiently.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="p-3">
+                    <i class="bi bi-shield-check fs-1 text-primary"></i>
+                    <h3 class="mt-3">Secure Payments</h3>
+                    <p>Shop with confidence using our secure payment methods.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="p-3">
+                    <i class="bi bi-arrow-counterclockwise fs-1 text-primary"></i>
+                    <h3 class="mt-3">Easy Returns</h3>
+                    <p>Not satisfied? Return your products hassle-free.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

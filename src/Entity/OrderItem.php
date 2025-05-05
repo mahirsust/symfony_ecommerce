@@ -77,6 +77,16 @@ class OrderItem
         return $this;
     }
 
+    /**
+     * Calculate total price based on unit price and quantity
+     *
+     * @return string
+     */
+    public function calculateTotalPrice(): string
+    {
+        return bcmul($this->unitPrice ?? '0.00', (string)($this->quantity ?? 0), 2);
+    }
+
     public function getProductName(): ?string
     {
         return $this->productName;

@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1 class="mb-4">Checkout</h1>
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Shipping Information</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_row(form.streetAddress) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form_row(form.city) }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form_row(form.state) }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form_row(form.postalCode) }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form_row(form.country) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_row(form.phoneNumber) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_row(form.isDefault) }}
+                        </div>
+
+                        <h5 class="mt-4 mb-3">Payment Method</h5>
+                        <div class="mb-3">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" value="cash_on_delivery" checked>
+                                <label class="form-check-label" for="cashOnDelivery">
+                                    Cash on Delivery
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="stripe" value="stripe">
+                                <label class="form-check-label" for="stripe">
+                                    <i class="bi bi-credit-card"></i> Credit Card (Stripe)
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Place Order</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for productId, item in cart %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span>{{ item.productName }}</span>
+                                    <small class="d-block text-muted">Qty: {{ item.quantity }}</small>
+                                </div>
+                                <span>${{ (item.price * item.quantity)|number_format(2) }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal:</span>
+                        <span>${{ total }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Shipping:</span>
+                        <span>Free</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <strong>Total:</strong>
+                        <strong>${{ total }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends 'admin\_layout.html.twig' %}
+
+{% block title %}Admin - Review Details{% endblock %}
+
+{% set active_menu = 'reviews' %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Review Details</h1>
+    <a href="{{ path('app_admin_product_reviews') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Reviews
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Review Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h3>{{ review.title }}</h3>
+                        <div class="text-warning mb-2">
+                            {% for i in 1..5 %}
+                                <i class="bi bi-star{% if i <= review.rating %}-fill{% endif %}"></i>
+                            {% endfor %}
+                            <span class="text-muted ms-2">({{ review.rating }}/5)</span>
+                        </div>
+                        <p class="text-muted">
+                            Submitted on {{ review.createdAt|date('F d, Y H:i') }}
+                            {% if review.isApproved %}
+                                <span class="badge bg-success ms-2">Approved</span>
+                                <small class="text-muted">({{ review.approvedAt|date('F d, Y H:i') }})</small>
+                            {% else %}
+                                <span class="badge bg-warning ms-2">Pending Approval</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    {% if not review.isApproved %}
+                        <div class="d-flex">
+                            <form action="{{ path('app_admin_product_review_approve', {'id': review.id}) }}" method="post" class="me-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ review.id) }}">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-lg"></i> Approve
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="bi bi-x-lg"></i> Reject
+                            </button>
+                        </div>
+                    {% else %}
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    {% endif %}
+                </div>
+                
+                <h5>Review Content</h5>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p>{{ review.comment|nl2br }}</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Product Information</h5>
+                        <div class="d-flex align-items-center mb-3">
+                            {% if review.product.productImages|length > 0 %}
+                                <img src="{{ asset('uploads/products/' ~ review.product.productImages[0].filename) }}" 
+                                     alt="{{ review.product.name }}" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light text-center me-3" style="width: 80px; height: 80px; line-height: 80px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ review.product.name }}</h6>
+                                <p class="text-muted mb-0">{{ review.product.category.name }}</p>
+                                <a href="{{ path('app_admin_product_show', {'id': review.product.id}) }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    View Product
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5>User Information</h5>
+                        <p><strong>Name:</strong> {{ review.user.firstName }} {{ review.user.lastName }}</p>
+                        <p><strong>Email:</strong> {{ review.user.email }}</p>
+                        <p><strong>Registered:</strong> {{ review.user.createdAt|date('F d, Y') }}</p>
+                        <p>
+                            <strong>Verified Purchase:</strong>
+                            {% if review.order %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Other Reviews by this User</h5>
+            </div>
+            <div class="card-body">
+                {% set userReviews = review.user.productReviews|filter(r => r.id != review.id) %}
+                {% if userReviews|length > 0 %}
+                    <ul class="list-group list-group-flush">
+                        {% for userReview in userReviews|slice(0, 5) %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ userReview.product.name }}</h6>
+                                        <div class="text-warning">
+                                            {% for i in 1..5 %}
+                                                <i class="bi bi-star{% if i <= userReview.rating %}-fill{% endif %}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ userReview.createdAt|date('M d, Y') }}</small>
+                                    </div>
+                                    <span class="badge bg-{{ userReview.isApproved ? 'success' : 'warning' }}">
+                                        {{ userReview.isApproved ? 'Approved' : 'Pending' }}
+                                    </span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-center py-3">No other reviews from this user.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Other Reviews for this Product</h5>
+            </div>
+            <div class="card-body">
+                {% set productReviews = review.product.productReviews|filter(r => r.id != review.id) %}
+                {% if productReviews|length > 0 %}
+                    <ul class="list-group list-group-flush">
+                        {% for productReview in productReviews|slice(0, 5) %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ productReview.title }}</h6>
+                                        <div class="text-warning">
+                                            {% for i in 1..5 %}
+                                                <i class="bi bi-star{% if i <= productReview.rating %}-fill{% endif %}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ productReview.user.email }}</small>
+                                    </div>
+                                    <span class="badge bg-{{ productReview.isApproved ? 'success' : 'warning' }}">
+                                        {{ productReview.isApproved ? 'Approved' : 'Pending' }}
+                                    </span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-center py-3">No other reviews for this product.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not review.isApproved %}
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Confirm Rejection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to reject and delete this review?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{ path('app_admin_product_review_reject', {'id': review.id}) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ review.id) }}">
+                        <button type="submit" class="btn btn-danger">Reject</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this review?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{ path('app_product_review_delete', {'id': review.id}) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ review.id) }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,3 +1,53 @@
+/* Custom styles for the e-commerce application */
 body {
-    background-color: skyblue;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Stripe payment button styling */
+.stripe-button {
+    background-color: #6772e5;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.stripe-button:hover {
+    background-color: #5469d4;
+}
+
+/* Order status badges */
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.status-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-processing {
+    background-color: #17a2b8;
+    color: #ffffff;
+}
+
+.status-shipped {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.status-delivered {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+.status-cancelled {
+    background-color: #dc3545;
+    color: #ffffff;
 }

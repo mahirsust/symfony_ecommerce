@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Details{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_order_index') }}">My Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Order #{{ order.orderNumber }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Order #{{ order.orderNumber }}</h1>
+        <a href="{{ path('app_order_index') }}" class="btn btn-outline-secondary">Back to Orders</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Order Date:</strong> {{ order.createdAt|date('F d, Y H:i') }}</p>
+                            <p>
+                                <strong>Status:</strong>
+                                <span class="badge bg-{{ order.status == 'completed' ? 'success' : (order.status == 'pending' ? 'warning' : 'info') }}">
+                                    {{ order.status|capitalize }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Payment Method:</strong> {{ order.paymentMethod|replace({'_': ' '})|capitalize }}</p>
+                            <p>
+                                <strong>Payment Status:</strong>
+                                <span class="badge bg-{{ order.paymentStatus == 'paid' ? 'success' : 'warning' }}">
+                                    {{ order.paymentStatus|capitalize }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-2">Shipping Address:</h6>
+                            <p>{{ order.shippingAddress|nl2br }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-2">Billing Address:</h6>
+                            <p>{{ order.billingAddress|nl2br }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.orderItems %}
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <strong>{{ item.productName }}</strong>
+                                                <small class="d-block text-muted">SKU: {{ item.productSku }}</small>
+                                            </div>
+                                        </td>
+                                        <td>${{ item.unitPrice }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ item.totalPrice }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong>${{ order.totalAmount }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span>${{ order.totalAmount }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Shipping:</span>
+                            <span>Free</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Total:</strong>
+                            <strong>${{ order.totalAmount }}</strong>
+                        </li>
+                    </ul>
+
+                    {% if order.paymentStatus == 'unpaid' %}
+                        <div class="mt-3">
+                            <a href="{{ path('app_payment_checkout', {'id': order.id}) }}" class="btn btn-primary w-100">
+                                <i class="bi bi-credit-card"></i> Pay with Stripe
+                            </a>
+                        </div>
+                    {% elseif order.paymentStatus == 'paid' %}
+                        <div class="alert alert-success mt-3">
+                            <i class="bi bi-check-circle"></i> Payment completed
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p>If you have any questions or issues with your order, please contact our customer support.</p>
+                    <p><i class="bi bi-envelope"></i> support@symfony-ecommerce.com</p>
+                    <p><i class="bi bi-telephone"></i> (123) 456-7890</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

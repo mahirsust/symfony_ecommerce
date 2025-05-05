@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Products{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_admin_dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
+                    <a href="{{ path('app_admin_product_index') }}" class="list-group-item list-group-item-action active">Products</a>
+                    <a href="{{ path('app_admin_category_index') }}" class="list-group-item list-group-item-action">Categories</a>
+                    <a href="{{ path('app_admin_order_index') }}" class="list-group-item list-group-item-action">Orders</a>
+                    <a href="{{ path('app_home') }}" class="list-group-item list-group-item-action">Back to Site</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Products</h1>
+                <a href="{{ path('app_admin_product_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add New Product
+                </a>
+            </div>
+            
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in pagination %}
+                                    <tr>
+                                        <td>{{ product.id }}</td>
+                                        <td>
+                                            {% if product.productImages|length > 0 %}
+                                                <img src="{{ asset('uploads/products/' ~ product.productImages[0].filename) }}" 
+                                                     alt="{{ product.name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light text-center" style="width: 50px; height: 50px; line-height: 50px;">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ product.name }}</td>
+                                        <td>{{ product.category.name }}</td>
+                                        <td>
+                                            {% if product.hasDiscount %}
+                                                <span class="text-decoration-line-through text-muted">${{ product.price }}</span>
+                                                <span class="text-danger">${{ product.discountPrice }}</span>
+                                            {% else %}
+                                                ${{ product.price }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ product.stock > 10 ? 'success' : (product.stock > 0 ? 'warning' : 'danger') }}">
+                                                {{ product.stock }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ product.isActive ? 'success' : 'secondary' }}">
+                                                {{ product.isActive ? 'Active' : 'Inactive' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_admin_product_show', {'id': product.id}) }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_admin_product_edit', {'id': product.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                            
+                                            <!-- Delete Modal -->
+                                            <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ product.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteModalLabel{{ product.id }}">Confirm Delete</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete the product "{{ product.name }}"?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form action="{{ path('app_admin_product_delete', {'id': product.id}) }}" method="post">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="navigation d-flex justify-content-center mt-4">
+                        {{ knp_pagination_render(pagination) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

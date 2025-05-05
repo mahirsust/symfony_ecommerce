@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ address.id ? 'Edit Address' : 'Add New Address' }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">My Account</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_user_profile') }}" class="list-group-item list-group-item-action">Profile</a>
+                    <a href="{{ path('app_user_addresses') }}" class="list-group-item list-group-item-action active">Addresses</a>
+                    <a href="{{ path('app_user_change_password') }}" class="list-group-item list-group-item-action">Change Password</a>
+                    <a href="{{ path('app_order_index') }}" class="list-group-item list-group-item-action">My Orders</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ address.id ? 'Edit Address' : 'Add New Address' }}</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        <div class="mb-3">
+                            {{ form_label(form.streetAddress) }}
+                            {{ form_widget(form.streetAddress, {'attr': {'class': 'form-control' ~ (form.streetAddress.vars.valid ? '' : ' is-invalid')}}) }}
+                            {{ form_errors(form.streetAddress) }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.city) }}
+                                {{ form_widget(form.city, {'attr': {'class': 'form-control' ~ (form.city.vars.valid ? '' : ' is-invalid')}}) }}
+                                {{ form_errors(form.city) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.state) }}
+                                {{ form_widget(form.state, {'attr': {'class': 'form-control' ~ (form.state.vars.valid ? '' : ' is-invalid')}}) }}
+                                {{ form_errors(form.state) }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.postalCode) }}
+                                {{ form_widget(form.postalCode, {'attr': {'class': 'form-control' ~ (form.postalCode.vars.valid ? '' : ' is-invalid')}}) }}
+                                {{ form_errors(form.postalCode) }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.country) }}
+                                {{ form_widget(form.country, {'attr': {'class': 'form-select' ~ (form.country.vars.valid ? '' : ' is-invalid')}}) }}
+                                {{ form_errors(form.country) }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.phoneNumber) }}
+                            {{ form_widget(form.phoneNumber, {'attr': {'class': 'form-control' ~ (form.phoneNumber.vars.valid ? '' : ' is-invalid')}}) }}
+                            {{ form_errors(form.phoneNumber) }}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form_widget(form.isDefault, {'attr': {'class': 'form-check-input' ~ (form.isDefault.vars.valid ? '' : ' is-invalid')}}) }}
+                            {{ form_label(form.isDefault, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            {{ form_errors(form.isDefault) }}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_user_addresses') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">{{ address.id ? 'Update Address' : 'Add Address' }}</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

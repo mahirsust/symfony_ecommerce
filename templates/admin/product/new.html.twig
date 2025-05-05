@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - New Product{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_admin_dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
+                    <a href="{{ path('app_admin_product_index') }}" class="list-group-item list-group-item-action active">Products</a>
+                    <a href="{{ path('app_admin_category_index') }}" class="list-group-item list-group-item-action">Categories</a>
+                    <a href="{{ path('app_admin_order_index') }}" class="list-group-item list-group-item-action">Orders</a>
+                    <a href="{{ path('app_home') }}" class="list-group-item list-group-item-action">Back to Site</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Create New Product</h1>
+                <a href="{{ path('app_admin_product_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form_label(form.name) }}
+                                    {{ form_widget(form.name, {'attr': {'class': 'form-control' ~ (form.name.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {{ form_errors(form.name) }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form_label(form.category) }}
+                                    {{ form_widget(form.category, {'attr': {'class': 'form-select' ~ (form.category.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {{ form_errors(form.category) }}
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.price) }}
+                                            {{ form_widget(form.price, {'attr': {'class': 'form-control' ~ (form.price.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.price) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.discountPrice) }}
+                                            {{ form_widget(form.discountPrice, {'attr': {'class': 'form-control' ~ (form.discountPrice.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.discountPrice) }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.stock) }}
+                                            {{ form_widget(form.stock, {'attr': {'class': 'form-control' ~ (form.stock.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.stock) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.sku) }}
+                                            {{ form_widget(form.sku, {'attr': {'class': 'form-control' ~ (form.sku.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.sku) }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form_widget(form.isActive) }}
+                                    {{ form_label(form.isActive) }}
+                                    {{ form_errors(form.isActive) }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form_label(form.description) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.valid ? '' : ' is-invalid'), 'rows': '10'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+                                
+                                <div class="mb-3" id="images">
+                                    {{ form_label(form.images) }}
+                                    {{ form_widget(form.images, {'attr': {'class': 'form-control' ~ (form.images.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {{ form_errors(form.images) }}
+                                    <small class="form-text text-muted">You can select multiple images. The first image will be used as the main product image.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ path('app_admin_product_index') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Product</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Review for {{ review.product.name }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_my_reviews') }}">My Reviews</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Review</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Edit Review for {{ review.product.name }}</h1>
+                </div>
+                <div class="card-body">
+                    {% if not review.isApproved %}
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle"></i> Your review will need to be approved again after editing.
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        {% if review.product.productImages|length > 0 %}
+                            <img src="{{ asset('uploads/products/' ~ review.product.productImages[0].filename) }}" 
+                                 alt="{{ review.product.name }}" class="img-thumbnail me-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light text-center me-3" style="width: 100px; height: 100px; line-height: 100px;">
+                                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-1">{{ review.product.name }}</h5>
+                            <p class="text-muted mb-0">{{ review.product.category.name }}</p>
+                        </div>
+                    </div>
+                    
+                    {{ form_start(form) }}
+                        <div class="mb-3">
+                            {{ form_label(form.title) }}
+                            {{ form_widget(form.title, {'attr': {'class': 'form-control' ~ (form.title.vars.valid ? '' : ' is-invalid')}}) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.rating) }}
+                            <div class="rating-stars">
+                                {{ form_widget(form.rating, {'attr': {'class': 'rating-input' ~ (form.rating.vars.valid ? '' : ' is-invalid')}}) }}
+                            </div>
+                            {{ form_errors(form.rating) }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.comment) }}
+                            {{ form_widget(form.comment, {'attr': {'class': 'form-control' ~ (form.comment.vars.valid ? '' : ' is-invalid')}}) }}
+                            {{ form_errors(form.comment) }}
+                            <small class="form-text text-muted">Minimum 10 characters, maximum 1000 characters.</small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_my_reviews') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Review</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+    
+    .rating-stars input[type="radio"] {
+        display: none;
+    }
+    
+    .rating-stars label {
+        cursor: pointer;
+        font-size: 1.5rem;
+        padding: 0 0.2rem;
+        color: #ddd;
+    }
+    
+    .rating-stars label:before {
+        content: "★";
+    }
+    
+    .rating-stars input[type="radio"]:checked ~ label {
+        color: #ffb700;
+    }
+    
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+        color: #ffb700;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Convert radio buttons to star rating
+        const ratingInputs = document.querySelectorAll('.rating-input input[type="radio"]');
+        const ratingLabels = document.querySelectorAll('.rating-input label');
+        
+        ratingLabels.forEach(label => {
+            label.classList.add('rating-star');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Order Details{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_admin_dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
+                    <a href="{{ path('app_admin_product_index') }}" class="list-group-item list-group-item-action">Products</a>
+                    <a href="{{ path('app_admin_category_index') }}" class="list-group-item list-group-item-action">Categories</a>
+                    <a href="{{ path('app_admin_order_index') }}" class="list-group-item list-group-item-action active">Orders</a>
+                    <a href="{{ path('app_home') }}" class="list-group-item list-group-item-action">Back to Site</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Order #{{ order.orderNumber }}</h1>
+                <a href="{{ path('app_admin_order_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Orders
+                </a>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Order Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p><strong>Order Number:</strong> {{ order.orderNumber }}</p>
+                                    <p><strong>Order Date:</strong> {{ order.createdAt|date('F d, Y H:i') }}</p>
+                                    <p>
+                                        <strong>Status:</strong>
+                                        <span class="badge bg-{{
+                                            order.status == 'completed' ? 'success' :
+                                            (order.status == 'pending' ? 'warning' :
+                                            (order.status == 'processing' ? 'info' :
+                                            (order.status == 'shipped' ? 'primary' :
+                                            (order.status == 'cancelled' ? 'danger' : 'secondary'))))
+                                        }}">
+                                            {{ order.status|capitalize }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Customer:</strong> {{ order.userRef.email }}</p>
+                                    <p><strong>Payment Method:</strong> {{ order.paymentMethod|replace({'_': ' '})|capitalize }}</p>
+                                    <p>
+                                        <strong>Payment Status:</strong>
+                                        <span class="badge bg-{{
+                                            order.paymentStatus == 'paid' ? 'success' :
+                                            (order.paymentStatus == 'unpaid' ? 'warning' :
+                                            (order.paymentStatus == 'refunded' ? 'info' : 'secondary'))
+                                        }}">
+                                            {{ order.paymentStatus|capitalize }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-2">Shipping Address:</h6>
+                                    <p>{{ order.shippingAddress|nl2br }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-2">Billing Address:</h6>
+                                    <p>{{ order.billingAddress|nl2br }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Order Items</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>SKU</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order.orderItems %}
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <strong>{{ item.productName }}</strong>
+                                                    </div>
+                                                </td>
+                                                <td>{{ item.productSku }}</td>
+                                                <td>${{ item.unitPrice }}</td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td>${{ item.totalPrice }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                            <td><strong>${{ order.totalAmount }}</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Update Order Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ path('app_admin_order_update_status', {'id': order.id}) }}" method="post">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select name="status" id="status" class="form-select">
+                                        <option value="pending" {{ order.status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="processing" {{ order.status == 'processing' ? 'selected' : '' }}>Processing</option>
+                                        <option value="shipped" {{ order.status == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                                        <option value="delivered" {{ order.status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                        <option value="cancelled" {{ order.status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Status</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Update Payment Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ path('app_admin_order_update_payment_status', {'id': order.id}) }}" method="post">
+                                <div class="mb-3">
+                                    <label for="payment_status" class="form-label">Payment Status</label>
+                                    <select name="payment_status" id="payment_status" class="form-select">
+                                        <option value="unpaid" {{ order.paymentStatus == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                        <option value="paid" {{ order.paymentStatus == 'paid' ? 'selected' : '' }}>Paid</option>
+                                        <option value="refunded" {{ order.paymentStatus == 'refunded' ? 'selected' : '' }}>Refunded</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Payment Status</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Customer Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Name:</strong> {{ order.userRef.firstName }} {{ order.userRef.lastName }}</p>
+                            <p><strong>Email:</strong> {{ order.userRef.email }}</p>
+                            <p><strong>Registered:</strong> {{ order.userRef.createdAt|date('F d, Y') }}</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm">View Customer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

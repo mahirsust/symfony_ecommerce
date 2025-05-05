@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Payment Cancelled{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
+                    </div>
+                    <h1 class="card-title mb-4">Payment Cancelled</h1>
+                    <p class="card-text mb-4">
+                        Your payment has been cancelled. No charges have been made to your account.
+                        You can try again later or choose a different payment method.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ path('app_payment_checkout', {'id': order.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-credit-card"></i> Try Again
+                        </a>
+                        <a href="{{ path('app_order_show', {'id': order.id}) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-eye"></i> View Order Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Order Number:</strong> {{ order.orderNumber }}</p>
+                            <p><strong>Order Date:</strong> {{ order.createdAt|date('F d, Y H:i') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Payment Status:</strong> <span class="badge bg-warning">Unpaid</span></p>
+                            <p><strong>Total Amount:</strong> ${{ order.totalAmount }}</p>
+                        </div>
+                    </div>
+                    
+                    <h6>Need Help?</h6>
+                    <p>If you're experiencing issues with payment, please contact our customer support:</p>
+                    <ul>
+                        <li>Email: support@symfony-ecommerce.com</li>
+                        <li>Phone: (123) 456-7890</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

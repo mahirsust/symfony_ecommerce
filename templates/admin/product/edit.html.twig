@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Edit Product{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admin Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('app_admin_dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
+                    <a href="{{ path('app_admin_product_index') }}" class="list-group-item list-group-item-action active">Products</a>
+                    <a href="{{ path('app_admin_category_index') }}" class="list-group-item list-group-item-action">Categories</a>
+                    <a href="{{ path('app_admin_order_index') }}" class="list-group-item list-group-item-action">Orders</a>
+                    <a href="{{ path('app_home') }}" class="list-group-item list-group-item-action">Back to Site</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Edit Product</h1>
+                <div>
+                    <a href="{{ path('app_admin_product_index') }}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                    <a href="{{ path('app_admin_product_show', {'id': product.id}) }}" class="btn btn-outline-info">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form_label(form.name) }}
+                                    {{ form_widget(form.name, {'attr': {'class': 'form-control' ~ (form.name.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {{ form_errors(form.name) }}
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form_label(form.category) }}
+                                    {{ form_widget(form.category, {'attr': {'class': 'form-select' ~ (form.category.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {{ form_errors(form.category) }}
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.price) }}
+                                            {{ form_widget(form.price, {'attr': {'class': 'form-control' ~ (form.price.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.price) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.discountPrice) }}
+                                            {{ form_widget(form.discountPrice, {'attr': {'class': 'form-control' ~ (form.discountPrice.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.discountPrice) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.stock) }}
+                                            {{ form_widget(form.stock, {'attr': {'class': 'form-control' ~ (form.stock.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.stock) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.sku) }}
+                                            {{ form_widget(form.sku, {'attr': {'class': 'form-control' ~ (form.sku.vars.valid ? '' : ' is-invalid')}}) }}
+                                            {{ form_errors(form.sku) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form_widget(form.isActive) }}
+                                    {{ form_label(form.isActive) }}
+                                    {{ form_errors(form.isActive) }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form_label(form.description) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.valid ? '' : ' is-invalid'), 'rows': '10'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+
+                                <div class="mb-3" id="images">
+                                    {{ form_label(form.images) }}
+                                    {{ form_widget(form.images, {'attr': {'class': 'form-control' ~ (form.images.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {{ form_errors(form.images) }}
+                                    <small class="form-text text-muted">You can select multiple images to add to the existing ones.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if product.productImages|length > 0 %}
+                            <div class="mt-4">
+                                <h5>Current Images</h5>
+                                <div class="row">
+                                    {% for image in product.productImages %}
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card">
+                                                <img src="{{ asset('uploads/products/' ~ image.filename) }}"
+                                                     alt="{{ product.name }}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <small class="text-muted">{{ image.isMain ? 'Main Image' : 'Image ' ~ loop.index }}</small>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteImageModal{{ image.id }}">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Delete Image Modal -->
+                                            <div class="modal fade" id="deleteImageModal{{ image.id }}" tabindex="-1" aria-labelledby="deleteImageModalLabel{{ image.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteImageModalLabel{{ image.id }}">Confirm Delete</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete this image?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form action="{{ path('app_admin_product_delete_image', {'id': product.id, 'imageId': image.id}) }}" method="post">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete-image' ~ image.id) }}">
+                                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ path('app_admin_product_index') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Product</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
